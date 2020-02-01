@@ -1,0 +1,6 @@
+com/mycompany/instantmessaging/IM_Producer.class
+com/mycompany/instantmessaging/IM_Serializer.class
+com/mycompany/instantmessaging/Message.class
+com/mycompany/instantmessaging/InstantMessaging.class
+com/mycompany/instantmessaging/IM_Deserializer.class
+com/mycompany/instantmessaging/IM_Consumer.class
