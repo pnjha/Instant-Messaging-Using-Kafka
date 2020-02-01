@@ -17,3 +17,7 @@ Command: contact_list<br>
 
 To display active topics<br>
 Command: get_topics<br>  
+
+To run from terminal<br>
+mvn install dependency:copy-dependencies<br>
+sudo java -cp "target/InstantMessaging-1.0.jar:target/dependency/*" com.mycompany.instantmessaging.InstantMessaging 127.0.0.1 9092 10

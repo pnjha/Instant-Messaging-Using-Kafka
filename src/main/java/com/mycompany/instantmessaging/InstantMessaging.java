@@ -34,7 +34,7 @@ public class InstantMessaging {
         try{
             File csvFile = new File(fileName);
             if (!csvFile.isFile()) {
-                System.out.println("New user created");
+                //System.out.println("New user created");
                 FileWriter csvWriter = new FileWriter(fileName);
                 csvWriter.flush();
                 csvWriter.close();
@@ -88,12 +88,18 @@ public class InstantMessaging {
                 BufferedReader csvReader = new BufferedReader(new FileReader(fileName));
                 while ((row = csvReader.readLine()) != null) {
                     String[] data = row.split(",");
-                    topicsSet.add(data[0].trim());
+                    if(topicsSet.contains(String.valueOf(data[0].trim()))==false)
+                        topicsSet.add(String.valueOf(data[0].trim()));
                 }
                 csvReader.close();
+            }else{
+                return true;
             }
             
-            topicsSet.add(topicName.trim());
+            if(topicsSet.contains(String.valueOf(topicName.trim()))==true)
+                return true;
+            
+            topicsSet.add(String.valueOf(topicName.trim()));
             
             for(String topic : topicsSet){
                 writeToCSV(fileName,topic);
@@ -151,10 +157,15 @@ public class InstantMessaging {
         
         String userId, cmd, topicName, msg, msgId, pathToCsv, fileEntry;
         Scanner sc = new Scanner(System.in);
+        
         System.out.println("Enter your username: ");
         userId = sc.nextLine();
-        pathToCsv = userId+".csv";
-                 
+        
+        IM_Producer producerReg = new IM_Producer(userId,socket);
+        producerReg.produceMessage("user_created", "default", "default");
+        producerReg = null;
+        
+        pathToCsv = userId+".csv";              
         chechFileExist(pathToCsv);
         
         while(true){
@@ -168,8 +179,10 @@ public class InstantMessaging {
                 IM_Consumer consumer = new IM_Consumer(userId,socket,maxRetry);
                 ArrayList<String> topics = consumer.getTopics();
                 for(int i = 0;i<topics.size();i++){
-                    System.out.println(topics.get(i));
-                    storeTopicName(userId,topics.get(i));
+                    if(String.valueOf(topics.get(i))!=String.valueOf("__consumer_offsets")){
+                        System.out.println(topics.get(i));
+                        storeTopicName(userId,topics.get(i));
+                    }
                 }
                 
             }else if(cmd.equals("send")==true){
@@ -217,10 +230,11 @@ public class InstantMessaging {
                     
                     for (int i=0; i<messages.size(); i++){
                         
-                        String[] tokens = messages.get(i).split(",", 2);                        
-                        fileEntry = tokens[0] +","+"read,"+topicName+","+tokens[1];
-                 
-                        writeToCSV(pathToCsv,fileEntry);
+                        String[] tokens = messages.get(i).split(",", 2);   
+                        if(tokens[0].equals("user_created")==false){
+                            fileEntry = tokens[0] +","+"read,"+topicName+","+tokens[1];                
+                            writeToCSV(pathToCsv,fileEntry);
+                        }
                     }
                     consumer = null;
                     
